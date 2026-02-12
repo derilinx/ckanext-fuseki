@@ -17,7 +17,7 @@ else:
 
 import datetime
 import os
-from typing import Any
+from typing import Any, Dict
 
 import sqlalchemy as sa
 from ckan.lib.jobs import DEFAULT_QUEUE_NAME
@@ -51,7 +51,7 @@ if not DEFAULT_FORMATS:
 log = logging.getLogger(__name__)
 
 
-def fuseki_delete(context: Context, data_dict: dict[str, Any]) -> dict[str, Any]:
+def fuseki_delete(context: Context, data_dict: Dict[str, Any]) -> Dict[str, Any]:
     """Delete the accompanying Fuseki Dataset
 
     Args:
@@ -132,7 +132,7 @@ def fuseki_delete(context: Context, data_dict: dict[str, Any]) -> dict[str, Any]
 #                 break
 
 
-def fuseki_update(context: Context, data_dict: dict[str, Any]) -> dict[str, Any]:
+def fuseki_update(context: Context, data_dict: Dict[str, Any]) -> Dict[str, Any]:
     """Starts an Update Task accompanying Fuseki Dataset
 
     Args:
@@ -140,7 +140,7 @@ def fuseki_update(context: Context, data_dict: dict[str, Any]) -> dict[str, Any]
         data_dict (dict): Dict contains any data posted by the user to CKAN, eg. any fields they’ve completed in a web form they’re submitting or any JSON fields they’ve posted to the API.
 
     Returns:
-        dict[str, Any]: The resource the update taske is started for
+        Dict[str, Any]: The resource the update taske is started for
     """
 
     toolkit.check_access("fuseki_update", context, data_dict)
@@ -289,7 +289,7 @@ def enqueue_update(
     return True
 
 
-def fuseki_hook(context: Context, data_dict: dict[str, Any]):
+def fuseki_hook(context: Context, data_dict: Dict[str, Any]):
     """Update Fuseki Task Status called by backgroundjob running to update job information.
 
     Args:
@@ -372,7 +372,7 @@ def fuseki_hook(context: Context, data_dict: dict[str, Any]):
 
 
 @toolkit.side_effect_free
-def fuseki_update_status(context: Context, data_dict: dict[str, Any]) -> dict[str, Any]:
+def fuseki_update_status(context: Context, data_dict: Dict[str, Any]) -> Dict[str, Any]:
     """Get the status of a the transformation job for a certain resource.
 
     Args:
