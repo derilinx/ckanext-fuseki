@@ -420,8 +420,11 @@ def fuseki_update_status(context: Context, data_dict: Dict[str, Any]) -> Dict[st
                     log["timestamp"], datetime.datetime
                 ):
                     log["timestamp"] = log["timestamp"].isoformat()
-        status = dict(status, **db_job)
-        status["metadata"] = db_job["metadata"]
+        # status = dict(status, **db_job)
+        status = dict(status, **(db_job or {}))
+        # status["metadata"] = db_job["metadata"]
+        status["metadata"] = db_job.get("metadata") if db_job else None
+
 
     return status
 

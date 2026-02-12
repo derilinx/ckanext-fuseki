@@ -61,7 +61,7 @@ def graph_delete(graph_id: str):
     jena_password = config.get("ckanext.fuseki.password")
     result = dict(resource_id=graph_id)
     try:
-        jena_dataset_delete_url = jena_base_url + "$/datasets/{graph_id}".format(
+        jena_dataset_delete_url = jena_base_url + "/datasets/{graph_id}".format(
             graph_id=graph_id
         )
         jena_dataset_delete_res = requests.delete(
@@ -119,7 +119,7 @@ def resource_exists(id):
     jena_password = config.get("ckanext.fuseki.password")
     res_exists = False
     try:
-        jena_dataset_stats_url = jena_base_url + "$/stats/{resource_id}".format(
+        jena_dataset_stats_url = jena_base_url + "/stats/{resource_id}".format(
             resource_id=id
         )
         jena_dataset_stats_res = requests.get(
@@ -141,7 +141,7 @@ def get_graph(graph_id):
     jena_password = config.get("ckanext.fuseki.password")
 
     try:
-        jena_dataset_stats_url = jena_base_url + "$/stats/{graph_id}".format(
+        jena_dataset_stats_url = jena_base_url + "/stats/{graph_id}".format(
             graph_id=graph_id
         )
         jena_dataset_stats_res = requests.get(
@@ -157,33 +157,36 @@ def get_graph(graph_id):
     return result
 
 
-def graph_create(
-    dataset_url: str,
-    graph_id: str,
-    persistant: bool = False,
-    reasoning: bool = False,
-    reasoner: str = "fullOWL",
-):
-    jena_base_url = config.get("ckanext.fuseki.url")
-    jena_username = config.get("ckanext.fuseki.username")
-    jena_password = config.get("ckanext.fuseki.password")
+# def graph_create(
+#     dataset_url: str,
+#     graph_id: str,
+#     persistant: bool = False,
+#     reasoning: bool = False,
+#     reasoner: str = "fullOWL",
+# ):
+#     jena_base_url = config.get("ckanext.fuseki.url")
+#     jena_username = config.get("ckanext.fuseki.username")
+#     jena_password = config.get("ckanext.fuseki.password")
+#
+#     jena_dataset_create_url = jena_base_url + "/datasets"
+#     assembly_graph = create_assembly(
+#         dataset_url, graph_id, persistant, reasoning, reasoner
+#     )
+#     file_data = assembly_graph.serialize(format="turtle")
+#     files = {"file": ("assembly.ttl", file_data, "text/turtle", {"Expires": "0"})}
+#
+#     response = requests.post(
+#         jena_dataset_create_url,
+#         files=files,
+#         auth=(jena_username, jena_password),
+#         verify=False,
+#     )
+#     response.raise_for_status()
+#     return jena_base_url + "{graph_id}".format(graph_id=graph_id)
 
-    jena_dataset_create_url = jena_base_url + "$/datasets"
-    assembly_graph = create_assembly(
-        dataset_url, graph_id, persistant, reasoning, reasoner
-    )
-    file_data = assembly_graph.serialize(format="turtle")
-    files = {"file": ("assembly.ttl", file_data, "text/turtle", {"Expires": "0"})}
-
-    response = requests.post(
-        jena_dataset_create_url,
-        files=files,
-        auth=(jena_username, jena_password),
-        verify=False,
-    )
-    response.raise_for_status()
-    return jena_base_url + "{graph_id}".format(graph_id=graph_id)
-
+def graph_create(dataset_url: str, graph_id: str, persistant=False, reasoning=False, reasoner="fullOWL"):
+    jena_base_url = config.get("ckanext.fuseki.url").rstrip("/")  # remove any trailing slash
+    return f"{jena_base_url}/{graph_id}"
 
 def create_assembly(
     dataset_url,
@@ -194,7 +197,7 @@ def create_assembly(
     unionDefaultGraph: bool = False,
 ):
     jena_base_url = config.get("ckanext.fuseki.url")
-    jena_dataset_namespace = jena_base_url + "$/dataset/"
+    jena_dataset_namespace = jena_base_url + "/dataset/"
     BASE = Namespace(jena_dataset_namespace)
     g = Graph()
     g.bind("tdb", TDB)
