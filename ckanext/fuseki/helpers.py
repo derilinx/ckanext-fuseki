@@ -9,8 +9,9 @@ from ckanext.fuseki.backend import get_graph
 
 # Retrieve the value of a configuration option
 SITE_URL = config.get("ckan.site_url")
-FUSEKI_URL = os.environ.get("CKANINI__CKANEXT__FUSEKI__URL", SITE_URL + "/")
-SPARKLIS_URL = os.environ.get("CKANINI__CKANEXT__FUSEKI__SPARKLIS__URL", "")
+FUSEKI_URL = config.get("ckanext.fuseki.url")
+FUSEKI_PUBLIC_URL = SITE_URL+"/fuseki/#/"
+SPARKLIS_URL = config.get("ckanext.fuseki.sparklis.url", "")
 
 
 def common_member(a, b):
@@ -18,7 +19,7 @@ def common_member(a, b):
 
 
 def fuseki_service_available():
-    url = os.environ.get("CKANINI__CKANEXT__FUSEKI__URL", "")
+    url = FUSEKI_URL
     if not url:
         return False  # If EXTRACT_URL is not set, return False
     try:
@@ -78,7 +79,7 @@ def fuseki_query_url(pkg_dict):
         # Default to Fuseki web UI
         # Fuseki dataset web UI URLs are typically: /$/datasets/<dataset_id>/sparql
         # But for CKAN integration we can just redirect to the dataset query page
-        url = "{}/dataset/{}/query".format(FUSEKI_URL.rstrip("/"), dataset_id)
+        url = "{}/dataset/{}/query".format(FUSEKI_PUBLIC_URL.rstrip("/"), dataset_id)
 
     return url
 
@@ -95,3 +96,4 @@ def get_helpers():
         "fuseki_query_url": fuseki_query_url,
         "fuseki_sparql_url": fuseki_sparql_url,
     }
+
