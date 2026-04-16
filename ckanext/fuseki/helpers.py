@@ -69,11 +69,11 @@ def fuseki_query_url(pkg_dict):
 
     if "SPARKLIS_URL" in globals() and SPARKLIS_URL:
         # If Sparklis is configured, redirect there
-        url = "{}?title={}&endpoint={}/dataset/{}".format(
+        url = "{}?title={}&endpoint={}/{}/sparql".format(
             SPARKLIS_URL,
             pkg_dict.get("name", dataset_id),
-            FUSEKI_URL.rstrip("/"),
-            dataset_id,
+            FUSEKI_PUBLIC_URL.rstrip("#/"),
+            dataset_id, 
         )
     else:
         # Default to Fuseki web UI
@@ -85,7 +85,7 @@ def fuseki_query_url(pkg_dict):
 
 
 def fuseki_sparql_url(pkg_dict):
-    url = "{}{}".format(FUSEKI_URL, pkg_dict["id"])
+    url = "{}/{}/sparql".format(FUSEKI_PUBLIC_URL.rstrip("#/"), pkg_dict["id"])
     return url
 
 
