@@ -218,3 +218,21 @@ def update(dataset_name, dataset_id, res_ids, callback_url, last_updated,
     job_dict["status"] = "complete"
     callback_fuseki_hook(callback_url, job_dict)
     return "error" if errored else None
+
+
+# --- Catalog sync ---
+def sync_catalog_graph(dataset_id, remove=False):
+    graph_url = "{}/{}".format(
+        config.get("ckanext.fuseki.url").rstrip("/"),
+        config.get("ckanext.fuseki.auto_sync.dataset"),
+    )
+    # keyed by id so renaming a dataset does not leave a stale graph behind
+    graph_iri = f"{CKAN_URL}/dataset/{dataset_id}"
+    if remove:
+        backend.graph_remove(graph_url, graph_iri)
+        return
+
+    ttl = get_action("dcat_dataset_show")(
+        {"ignore_auth": True}, {"id": dataset_id, "format": "turtle"}
+    )
+    backend.graph_put(graph_url, graph_iri, ttl)
