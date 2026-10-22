@@ -113,6 +113,35 @@ def resource_upload(resource, graph_url, api_key=""):
     return True
 
 
+def graph_put(graph_url: str, dataset_url: str, ttl: str):
+    jena_username = config.get("ckanext.fuseki.username")
+    jena_password = config.get("ckanext.fuseki.password")
+    response = requests.put(
+        graph_url + "/data",
+        params={"graph": dataset_url},
+        data=ttl.encode("utf-8"),
+        headers={"Content-Type": "text/turtle; charset=utf-8"},
+        auth=(jena_username, jena_password),
+        verify=SSL_VERIFY,
+    )
+    response.raise_for_status()
+    return True
+
+
+def graph_remove(graph_url: str, graph_iri: str):
+    jena_username = config.get("ckanext.fuseki.username")
+    jena_password = config.get("ckanext.fuseki.password")
+    response = requests.delete(
+        graph_url + "/data",
+        params={"graph": graph_iri},
+        auth=(jena_username, jena_password),
+        verify=SSL_VERIFY,
+    )
+    if response.status_code != requests.codes.not_found:
+        response.raise_for_status()
+    return True
+
+
 def resource_exists(id):
     jena_base_url = config.get("ckanext.fuseki.url")
     jena_username = config.get("ckanext.fuseki.username")
