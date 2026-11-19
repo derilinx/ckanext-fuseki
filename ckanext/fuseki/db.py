@@ -19,6 +19,7 @@ METADATA_TABLE = None
 LOGS_TABLE = None
 
 DB_URL = os.environ.get("FUSEKI_SQLALCHEMY_URL", "sqlite:////tmp/jobs.db")
+DB_URL = os.environ.get("FUSEKI_SQLALCHEMY_URL", "sqlite:////tmp/jobs.db")
 
 
 def init(db_uri=DB_URL, echo=False):

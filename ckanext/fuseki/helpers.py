@@ -2,14 +2,16 @@
 
 import os
 import re
-
+from ckan.common import config
 import requests
 
 from ckanext.fuseki.backend import get_graph
 
 # Retrieve the value of a configuration option
-FUSEKI_URL = os.environ.get("CKANINI__CKANEXT__FUSEKI__URL", "/")
-SPARKLIS_URL = os.environ.get("CKANINI__CKANEXT__FUSEKI__SPARKLIS__URL", "")
+SITE_URL = config.get("ckan.site_url")
+FUSEKI_URL = config.get("ckanext.fuseki.url")
+FUSEKI_PUBLIC_URL = SITE_URL+"/fuseki/#/"
+SPARKLIS_URL = config.get("ckanext.fuseki.sparklis.url", "")
 
 
 def common_member(a, b):
@@ -17,7 +19,7 @@ def common_member(a, b):
 
 
 def fuseki_service_available():
-    url = os.environ.get("CKANINI__CKANEXT__FUSEKI__URL", "")
+    url = FUSEKI_URL
     if not url:
         return False  # If EXTRACT_URL is not set, return False
     try:
@@ -46,19 +48,44 @@ def fuseki_graph_exists(graph_id):
     return get_graph(graph_id)
 
 
+# def fuseki_query_url(pkg_dict):
+#     if not SPARKLIS_URL:
+#         # fuseki query interface
+#         url = "{}/dataset/{}/query".format(FUSEKI_URL, pkg_dict["id"])
+#     else:
+#         url = "{}?title={}&endpoint={}{}".format(
+#             SPARKLIS_URL, pkg_dict["name"], FUSEKI_URL, pkg_dict["id"]
+#         )
+#     return url
+
 def fuseki_query_url(pkg_dict):
-    if not SPARKLIS_URL:
-        # fuseki query interface
-        url = "{}#/dataset/{}/query".format(FUSEKI_URL, pkg_dict["id"])
-    else:
-        url = "{}?title={}&endpoint={}{}".format(
-            SPARKLIS_URL, pkg_dict["name"], FUSEKI_URL, pkg_dict["id"]
+    """
+    Return the URL to query a dataset in Fuseki or Sparklis.
+
+    Uses the CKAN dataset id from pkg_dict.
+    Ensures no '$' is used in the HTTP API URL.
+    """
+    dataset_id = pkg_dict["id"]
+
+    if "SPARKLIS_URL" in globals() and SPARKLIS_URL:
+        # If Sparklis is configured, redirect there
+        url = "{}?title={}&endpoint={}/{}/sparql".format(
+            SPARKLIS_URL,
+            pkg_dict.get("name", dataset_id),
+            FUSEKI_PUBLIC_URL.rstrip("#/"),
+            dataset_id, 
         )
+    else:
+        # Default to Fuseki web UI
+        # Fuseki dataset web UI URLs are typically: /$/datasets/<dataset_id>/sparql
+        # But for CKAN integration we can just redirect to the dataset query page
+        url = "{}/dataset/{}/query".format(FUSEKI_PUBLIC_URL.rstrip("/"), dataset_id)
+
     return url
 
 
 def fuseki_sparql_url(pkg_dict):
-    url = "{}{}".format(FUSEKI_URL, pkg_dict["id"])
+    url = "{}/{}/sparql".format(FUSEKI_PUBLIC_URL.rstrip("#/"), pkg_dict["id"])
     return url
 
 
@@ -69,3 +96,4 @@ def get_helpers():
         "fuseki_query_url": fuseki_query_url,
         "fuseki_sparql_url": fuseki_sparql_url,
     }
+

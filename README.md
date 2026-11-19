@@ -79,6 +79,14 @@ CKANINI__CKANEXT__FUSEKI__SPARKLIS__URL = http://<sparklis_host>:<sparklis_port>
 ```
 the query button will redirect to sparklis instead.
 
+To keep an existing Fuseki dataset (it must already exist) in sync with the catalog, set
+```bash
+ckanext.fuseki.auto_sync.dataset = full-catalog
+```
+Requires ckanext-dcat. On create and update the DCAT turtle of each public dataset is written to
+its own named graph inside that Fuseki dataset; private, draft and deleted datasets are removed from it.
+Leave it empty to disable.
+
 # Acknowledgements
 
 This project's work is based on a fork of the repo [etri-odp/ckanext-jena](https://github.com/etri-odp/ckanext-jena), and we like to thank the authors of that project for sharing their work.
