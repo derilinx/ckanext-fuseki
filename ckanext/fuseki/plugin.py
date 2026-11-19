@@ -48,14 +48,31 @@ class JenaPlugin(p.SingletonPlugin):
     # IPackageController
     # ----------------------
 
-    def after_create(self, context, pkg_dict):
+    def after_dataset_create(self, context, pkg_dict):
         self._sync_graph(pkg_dict)
+
+    def after_dataset_update(self, context, pkg_dict):
+        self._sync_graph(pkg_dict)
+
+    def after_dataset_delete(self, context, pkg_dict):
+        self._sync_graph(pkg_dict, remove=True)
+
+    # On CKAN 2.9 these methods are shared with IResourceController
+    def _is_dataset(self, data_dict):
+        return isinstance(data_dict, dict) and "package_id" not in data_dict
+
+    def after_create(self, context, pkg_dict):
+        if self._is_dataset(pkg_dict):
+            self._sync_graph(pkg_dict)
 
     def after_update(self, context, pkg_dict):
-        self._sync_graph(pkg_dict)
+        if self._is_dataset(pkg_dict):
+            self._sync_graph(pkg_dict)
 
     def after_delete(self, context, pkg_dict):
-        self._sync_graph(pkg_dict, remove=True)
+        if self._is_dataset(pkg_dict):
+            self._sync_graph(pkg_dict, remove=True)
+
 
     def _sync_graph(self, pkg_dict, remove=False):
         if not (
